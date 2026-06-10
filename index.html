@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Тимур Юсипов — AI Video Creator & Editor</title>
+  <meta name="description" content="Портфолио AI-креатора и видеомонтажёра: концепция, сценарий, AI-генерация, монтаж, звук и финальная сборка." />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    :root {
+      --page-max: 1320px;
+      --glass-bg: rgba(10, 13, 22, 0.50);
+      --glass-bg-strong: rgba(10, 13, 22, 0.64);
+      --line: rgba(255, 255, 255, 0.14);
+      --muted: rgba(255, 255, 255, 0.70);
+      --text: rgba(255, 255, 255, 0.94);
+      --accent: #a9f0ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: #05060a;
+      color: var(--text);
+    }
+
+    .portfolio-bg {
+      position: fixed;
+      inset: -5vw;
+      z-index: -4;
+      width: calc(100% + 10vw);
+      height: calc(100% + 10vw);
+      object-fit: cover;
+      object-position: center;
+      filter: blur(5px) brightness(0.85) contrast(1.15) saturate(1.1);
+      transform: translate3d(0, 0, 0) scale(1.08);
+      will-change: transform;
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .portfolio-bg-shade {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      background:
+        radial-gradient(circle at 16% 8%, rgba(255, 150, 60, 0.08), transparent 34%),
+        radial-gradient(circle at 78% 16%, rgba(80, 185, 255, 0.06), transparent 34%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.12) 35%, rgba(0, 0, 0, 0.50));
+      pointer-events: none;
+    }
+
+    .bg-grid, .noise, .orb { display: none !important; }
+
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--line);
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(12px) saturate(1.12);
+      -webkit-backdrop-filter: blur(12px) saturate(1.12);
+    }
+
+    body > header,
+    main,
+    footer {
+      width: min(var(--page-max), calc(100% - 56px)) !important;
+      max-width: var(--page-max) !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .hero {
+      margin-top: 18px !important;
+      border-radius: 28px !important;
+      overflow: hidden;
+      min-height: 0 !important;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 26px !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .logo {
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      font-size: 13px;
+    }
+
+    .links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .links a {
+      color: rgba(255, 255, 255, 0.74);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .links a:hover { color: #fff; }
+
+    .hero-content {
+      display: block !important;
+      padding: 32px 44px 36px !important;
+      min-height: 0 !important;
+    }
+
+    .hero-copy h1 {
+      max-width: 820px;
+      margin: 8px 0 12px;
+      font-size: clamp(40px, 3.8vw, 62px) !important;
+      line-height: 0.98 !important;
+      letter-spacing: -0.04em;
+    }
+
+    .lead {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: clamp(16px, 1.15vw, 20px) !important;
+      line-height: 1.42;
+      margin: 0;
+    }
+
+    .hero-focus {
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-focus h2 {
+      margin: 8px 0 10px;
+      font-size: clamp(28px, 2.8vw, 44px);
+      line-height: 1.03;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-focus p {
+      color: var(--muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .hero-points {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .hero-point {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.80);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .hero-point b {
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #101016;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .button.ghost {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.92);
+    }
+
+    main { padding-top: 22px; }
+
+    .intro { display: none !important; }
+
+    .section {
+      margin: 0 0 34px !important;
+      padding: 0 !important;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      margin: 0 0 18px;
+      padding: 0 2px;
+    }
+
+    .section-head h2,
+    .subsection-title h3,
+    .skills h2,
+    .contacts h2 {
+      margin: 0;
+      font-size: clamp(30px, 3.3vw, 48px) !important;
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--accent) !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase;
+      font-size: 11px !important;
+      font-weight: 900;
+    }
+
+    .works-grid {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 24px !important;
+      align-items: start !important;
+    }
+
+    .work-card,
+    .work-card.featured {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      overflow: hidden !important;
+      border-radius: 24px !important;
+      min-height: auto !important;
+    }
+
+    .work-card .video-wrap {
+      width: 100% !important;
+      aspect-ratio: 16 / 9 !important;
+      max-height: 260px !important;
+      background: rgba(0, 0, 0, 0.72) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+      overflow: hidden !important;
+    }
+
+    .work-card video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain !important;
+      display: block !important;
+      background: #05060a;
+    }
+
+    .work-info {
+      padding: 20px 22px 22px !important;
+    }
+
+    .tag {
+      display: inline-block !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      color: rgba(175, 230, 255, 0.94) !important;
+      letter-spacing: 0.14em !important;
+      font-size: 10px !important;
+      font-weight: 900 !important;
+      text-transform: uppercase !important;
+      margin-bottom: 12px !important;
+    }
+
+    .work-info h3 {
+      display: none !important;
+    }
+
+    .work-info p {
+      margin: 0 0 12px !important;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.45;
+      font-size: 16px;
+    }
+
+    .work-info ul {
+      margin: 0 !important;
+      padding-left: 18px !important;
+      color: rgba(255,255,255,0.70);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .subsection-title {
+      margin: 42px 0 18px !important;
+      padding: 0 2px !important;
+      max-width: 760px;
+    }
+
+    .subsection-title p:last-child {
+      margin: 10px 0 0;
+      color: rgba(255,255,255,0.70);
+      line-height: 1.5;
+    }
+
+    .works-grid.single {
+      grid-template-columns: minmax(0, 1fr) !important;
+      max-width: 760px !important;
+    }
+
+    .skills,
+    .contacts {
+      border-radius: 24px !important;
+      padding: 28px !important;
+      display: grid !important;
+      grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+
+    .skills {
+      grid-template-columns: 1fr !important;
+      align-items: start !important;
+      gap: 24px !important;
+    }
+
+    .skills-head {
+      max-width: 760px;
+    }
+
+    .skills-layout {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .skill-panel {
+      border-radius: 22px;
+      padding: 22px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .skill-panel h3,
+    .tool-group h3 {
+      margin: 0 0 12px;
+      color: rgba(255,255,255,0.84);
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .skill-panel p {
+      margin: 0 0 16px;
+      max-width: 520px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.5;
+    }
+
+    .tools-column {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .tool-group {
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .skill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .skill-list span,
+    .contact-row a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.84);
+      text-decoration: none;
+      font-weight: 750;
+      font-size: 14px;
+    }
+
+    .contacts {
+      grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr) !important;
+    }
+
+    .contacts p {
+      color: rgba(255,255,255,0.72);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .contact-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 0;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .contacts { grid-template-columns: 1fr !important; }
+      .contact-row { justify-content: flex-start; }
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: rgba(255,255,255,0.48);
+      padding: 20px 0 32px !important;
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      body > header,
+      main,
+      footer { width: min(100% - 28px, var(--page-max)) !important; }
+
+      .hero-content,
+      .skills,
+      .contacts {
+        grid-template-columns: 1fr !important;
+      }
+
+      .works-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .tools-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .hero-content { padding: 28px !important; }
+      .topline { padding: 16px 20px !important; }
+      .links { gap: 12px; }
+      .work-card .video-wrap { max-height: none !important; }
+    }
+
+    @media (max-width: 980px) {
+      .skills-layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .tools-column {
+        grid-template-columns: 1fr !important;
+      }
+
+      .skill-panel,
+      .tool-group {
+        width: 100% !important;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body > header,
+      main,
+      footer {
+        width: min(100% - 20px, var(--page-max)) !important;
+      }
+
+      .hero-content {
+        padding: 24px 20px 28px !important;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(38px, 12vw, 54px) !important;
+        line-height: 0.98 !important;
+        letter-spacing: -0.045em !important;
+      }
+
+      .lead {
+        font-size: 16px !important;
+      }
+
+      .section-head h2,
+      .subsection-title h3,
+      .skills h2,
+      .contacts h2 {
+        font-size: clamp(30px, 10vw, 42px) !important;
+      }
+
+      .skills,
+      .contacts {
+        padding: 20px !important;
+      }
+
+      .skills-layout {
+        gap: 14px !important;
+      }
+
+      .skill-panel,
+      .tool-group {
+        padding: 16px !important;
+      }
+
+      .skill-list {
+        gap: 8px !important;
+      }
+
+      .skill-list span,
+      .contact-row a {
+        font-size: 13px !important;
+        padding: 8px 10px !important;
+      }
+
+      .contacts {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 18px !important;
+      }
+
+      .contact-row {
+        justify-content: flex-start !important;
+      }
+
+      footer {
+        justify-content: center !important;
+        text-align: center !important;
+      }
+
+      footer span:last-child {
+        display: none !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <video class="portfolio-bg" aria-hidden="true" autoplay muted loop playsinline preload="auto" poster="assets/fon4.jpg">
+    <source src="assets/fon2.mp4" type="video/mp4" media="(max-width: 700px)">
+    <source src="assets/fon.mp4" type="video/mp4" media="(min-width: 701px)">
+  </video>
+  <div class="portfolio-bg-shade" aria-hidden="true"></div>
+
+  <header class="hero glass">
+    <nav class="topline">
+      <div class="logo">TY / AI VIDEO</div>
+      <div class="links">
+        <a href="#works">Работы</a>
+        <a href="#skills">Навыки</a>
+        <a href="#contacts">Контакты</a>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <div class="hero-copy">
+        <p class="eyebrow">AI Video Creator / Видеомонтажёр</p>
+        <h1>AI-видео и монтаж роликов</h1>
+        <p class="lead">Идея, сценарий, генерация, ритмический монтаж, звук и финальная сборка.</p>
+        <div class="cta-row">
+          <a class="button" href="#works">Смотреть работы</a>
+          
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <main>
+    <section id="works" class="section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Selected works</p>
+          <h2>AI-работы</h2>
+        </div>
+      </div>
+
+      <div class="works-grid">
+        <article class="work-card glass featured">
+          <div class="video-wrap">
+            <video controls preload="metadata" src="assets/videos/Carpet_Worlds.mp4"></video>
+          </div>
+          <div class="work-info">
+            <p class="tag">AI short / music-driven edit</p>
+            <h3>Carpet Worlds</h3>
+            <p>Атмосферный AI-ролик с визуальным сторителлингом, сменой миров и монтажом под музыку.</p>
+            <ul>
+              <li>Роль: концепция, визуальное повествование, AI-изображения, AI-видео, ритмический монтаж.</li>
+              <li>Инструменты: Kling, Seedance, Flux 2 Pro, GPT Image 2.0.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="work-card glass">
+          <div class="video-wrap">
+            <video controls preload="metadata" poster="assets/posters/meet_anna.jpg" src="assets/videos/Influencer_AI_Commercial.mp4"></video>
+          </div>
+          <div class="work-info">
+            <p class="tag">AI comedy commercial</p>
+            <h3>Influencer</h3>
+            <p>Рекламный концепт с виртуальным лицом бренда, трансформацией образа и комедийным финалом.</p>
+            <ul>
+              <li>Роль: концепция, сценарий, генерация персонажей и сцен, монтаж, звук.</li>
+              <li>Инструменты: Flux 2 Pro, GPT Image 2.0, Kling, Veo 3.1, ElevenLabs, Suno.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="work-card glass">
+          <div class="video-wrap">
+            <video controls preload="metadata" poster="assets/posters/engineer.jpg" src="assets/videos/Engineer-Aviasales_AI_Commercial.mp4"></video>
+          </div>
+          <div class="work-info">
+            <p class="tag">AI storytelling comedy ad</p>
+            <h3>Engineer Aviasales</h3>
+            <p>Серьёзная история инженера с резким рекламным панчлайном.</p>
+            <ul>
+              <li>Роль: идея, сценарий, AI-генерация, монтаж, звук, финальная сборка.</li>
+              <li>Инструменты: GPT Image 2.0, Hailuo, Sora 2, ElevenLabs.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="work-card glass">
+          <div class="video-wrap">
+            <video controls preload="metadata" poster="assets/posters/prometey.jpg" src="assets/videos/Comedy_AI_Commercial.mp4"></video>
+          </div>
+          <div class="work-info">
+            <p class="tag">AI comedy ad</p>
+            <h3>Comedy Commercial</h3>
+            <p>Короткая реклама для соцсетей: хук, абсурд и финальная шутка.</p>
+            <ul>
+              <li>Роль: идея, сценарий, промптинг, AI-видео, монтаж, саунд-дизайн.</li>
+              <li>Инструменты: Sora 2, GPT Image 2.0.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <div class="subsection-title">
+        <p class="eyebrow">Non-AI editing</p>
+        <h3>Обычный монтаж</h3>
+        <p>Живой материал: монтаж, ритм, цвет и постобработка съёмки.</p>
+      </div>
+
+      <div class="works-grid single">
+        <article class="work-card glass">
+          <div class="video-wrap">
+            <video controls preload="metadata" poster="assets/posters/beauty.jpg" src="assets/videos/PMU_Beauty_Reel.mp4"></video>
+          </div>
+          <div class="work-info">
+            <p class="tag">Commercial editing</p>
+            <h3>PMU Beauty Reel</h3>
+            <p>Бьюти-ролик из живого материала: ритм, переходы, цвет и подгонка монтажа под музыку.</p>
+            <ul>
+              <li>Роль: монтаж под музыку, цветокоррекция, визуальные эффекты, финальная сборка.</li>
+              <li>Инструменты: Vegas Pro.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="skills" class="section glass skills tools-section">
+      <div class="skills-head">
+        <p class="eyebrow">Skills & tools</p>
+        <h2>Навыки и инструменты</h2>
+      </div>
+
+      <div class="skills-layout">
+        <div class="skill-panel">
+          <h3>Что делаю</h3>
+          <div class="skill-list">
+            <span>Концепция</span>
+            <span>Сценарий</span>
+            <span>Промптинг</span>
+            <span>AI-генерация</span>
+            <span>Ритмический монтаж</span>
+            <span>Цветокоррекция</span>
+            <span>Саунд-дизайн</span>
+            <span>Финальная сборка</span>
+          </div>
+        </div>
+
+        <div class="tools-column">
+          <div class="tool-group">
+            <h3>Основные AI-инструменты</h3>
+            <div class="skill-list">
+              <span>Flux</span>
+              <span>GPT Image</span>
+              <span>Nano Banana</span>
+              <span>Sora</span>
+              <span>Veo</span>
+              <span>Kling</span>
+              <span>Seedance</span>
+              <span>Hailuo</span>
+              <span>PixVerse</span>
+              <span>ElevenLabs</span>
+              <span>Suno</span>
+            </div>
+          </div>
+
+          <div class="tool-group">
+            <h3>Основные программы</h3>
+            <div class="skill-list">
+              <span>Sony Vegas</span>
+              <span>CapCut</span>
+              <span>Adobe Photoshop</span>
+              <span>Adobe Audition</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacts" class="section contacts glass">
+      <div>
+        <p class="eyebrow">Contacts</p>
+        <h2>Связаться</h2>
+      </div>
+      <div>
+        <div class="contact-row">
+          <a href="mailto:YusipovTR@yandex.ru">YusipovTR@yandex.ru</a>
+          <a href="https://t.me/Pozor_slonika">Telegram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 Тимур Юсипов</span>
+    <span>Concept • AI generation • Editing • Sound</span>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (() => {
+      const bg = document.querySelector('.portfolio-bg');
+      if (!bg) return;
+      let ticking = false;
+      const update = () => {
+        const y = window.scrollY * 0.12;
+        bg.style.transform = `translate3d(0, ${y}px, 0) scale(1.08)`;
+        ticking = false;
+      };
+      update();
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(update);
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+  </script>
+
+</body>
+</html>
